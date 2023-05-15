@@ -1,5 +1,5 @@
-import { z } from "zod";
 import { createEnv } from "@t3-oss/env-nextjs";
+import { z } from "zod";
 
 export const env = createEnv({
   /**
@@ -21,13 +21,11 @@ export const env = createEnv({
       process.env.VERCEL ? z.string().min(1) : z.string().url()
     ),
     // Add `.min(1) on ID and SECRET if you want to make sure they're not empty
-    // DISCORD_CLIENT_ID: z.string(),
-    // DISCORD_CLIENT_SECRET: z.string(),
-    GOOGLE_CLIENT_ID: z.string(),
-    GOOGLE_CLIENT_SECRET: z.string(),
-    GODADDY_API_SECRET: z.string(),
-    GODADDY_API_KEY: z.string(),
     GODADDY_API: z.string().url(),
+    GODADDY_API_KEY: z.string().min(1),
+    GOOGLE_CLIENT_ID: z.string().min(1),
+    GODADDY_API_SECRET: z.string().min(1),
+    GOOGLE_CLIENT_SECRET: z.string().min(1),
   },
 
   /**
@@ -46,14 +44,15 @@ export const env = createEnv({
   runtimeEnv: {
     NODE_ENV: process.env.NODE_ENV,
     POSTGRES_PRISMA_URL: process.env.POSTGRES_PRISMA_URL,
+
     NEXTAUTH_URL: process.env.NEXTAUTH_URL,
     NEXTAUTH_SECRET: process.env.NEXTAUTH_SECRET,
-    // DISCORD_CLIENT_ID: process.env.DISCORD_CLIENT_ID,
-    // DISCORD_CLIENT_SECRET: process.env.DISCORD_CLIENT_SECRET,
+
     GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
-    GODADDY_API_SECRET: process.env.GODADDY_API_SECRET,
-    GODADDY_API_KEY: process.env.GODADDY_API_KEY,
+
     GODADDY_API: process.env.GODADDY_API,
+    GODADDY_API_KEY: process.env.GODADDY_API_KEY,
+    GODADDY_API_SECRET: process.env.GODADDY_API_SECRET,
   },
 });

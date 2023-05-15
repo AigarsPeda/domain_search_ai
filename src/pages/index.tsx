@@ -1,17 +1,21 @@
 import { type NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
-import { useEffect } from "react";
-
+import { useEffect, useState } from "react";
+import Textarea from "~/components/elements/Textarea";
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
   const goDaddy = api.example.getDomain.useQuery();
 
+  const [value, setValue] = useState("");
+
   useEffect(() => {
     goDaddy.data && console.log(goDaddy.data);
   }, [goDaddy.data]);
+
+  // border-pink-500
 
   return (
     <>
@@ -22,16 +26,31 @@ const Home: NextPage = () => {
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
         <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16 ">
-          <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-            AI Domain search 1.01
+          <h1 className="text-xl font-extrabold tracking-tight text-white sm:text-[2rem] md:text-4xl">
+            Unlock AI-Powered Domain Recommendations! Describe your business or
+            project below and let our advanced AI technology generate
+            personalized domain name suggestions exclusively for you. Take your
+            online presence to the next level!
           </h1>
+          <Textarea
+            value={value}
+            placeholder="Describe your business or project..."
+            handleInputChange={setValue}
+          />
 
-          <div className="flex flex-col items-center gap-2">
+          <button
+            className="rounded-full bg-white/10 px-10 py-3 font-semibold text-white no-underline transition hover:bg-white/20"
+            // onClick={sessionData ? () => void signOut() : () => void signIn()}
+          >
+            Search
+          </button>
+
+          {/* <div className="flex flex-col items-center gap-2">
             <p className="text-2xl text-white">
               {hello.data ? hello.data.greeting : "Loading tRPC query..."}
             </p>
             <AuthShowcase />
-          </div>
+          </div> */}
         </div>
       </main>
     </>
