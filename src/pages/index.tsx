@@ -1,11 +1,17 @@
 import { type NextPage } from "next";
 import { signIn, signOut, useSession } from "next-auth/react";
 import Head from "next/head";
+import { useEffect } from "react";
 
 import { api } from "~/utils/api";
 
 const Home: NextPage = () => {
   const hello = api.example.hello.useQuery({ text: "from tRPC" });
+  const goDaddy = api.example.getDomain.useQuery();
+
+  useEffect(() => {
+    goDaddy.data && console.log(goDaddy.data);
+  }, [goDaddy.data]);
 
   return (
     <>
