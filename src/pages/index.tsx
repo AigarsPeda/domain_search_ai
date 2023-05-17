@@ -25,7 +25,7 @@ const Home: NextPage = () => {
             personalized domain name suggestions exclusively for you. Take your
             online presence to the next level!"
       />
-      <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
+      <div className="flex min-h-screen flex-col items-center justify-center">
         <div className="max-w-4xl">
           <h1 className="text-xl font-extrabold tracking-tight text-gray-50 sm:text-[2rem] md:text-6xl">
             Unlock <span className="text-pink-500">AI</span>-Powered Domain
@@ -54,7 +54,7 @@ const Home: NextPage = () => {
           </p>
           <AuthShowcase />
         </div>
-      </main>
+      </div>
     </>
   );
 };

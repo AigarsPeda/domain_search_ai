@@ -16,11 +16,13 @@ const Generate: NextPage = () => {
             personalized domain name suggestions exclusively for you. Take your
             online presence to the next level!"
       />
-      <Textarea
-        value={textAreaValue}
-        handleInputChange={setTextAreaValue}
-        placeholder="Describe your business or project..."
-      />
+      <div className="min-h-screen">
+        <Textarea
+          value={textAreaValue}
+          handleInputChange={setTextAreaValue}
+          placeholder="Describe your business or project..."
+        />
+      </div>
     </>
   );
 };
