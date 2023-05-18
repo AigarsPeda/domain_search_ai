@@ -40,9 +40,8 @@ const Textarea = forwardRef<Ref, InputProps>(
             after:ml-1 after:mt-[6.5px] after:box-border after:block after:h-1.5 after:w-2.5 
             after:flex-grow after:rounded-tr-md after:border-r after:border-t 
             after:transition-all peer-placeholder-shown:text-sm peer-placeholder-shown:leading-[4.1] 
-            peer-placeholder-shown:before:border-transparent 
-            peer-placeholder-shown:after:border-transparent peer-focus:text-[11px] peer-focus:leading-tight 
-            peer-focus:text-pink-500 
+            peer-placeholder-shown:before:border-transparent peer-placeholder-shown:after:border-transparent
+            peer-focus:text-[11px] peer-focus:leading-tight peer-focus:text-pink-500 
             peer-focus:before:border-l-2 peer-focus:before:border-t-2 peer-focus:before:border-pink-500 
             peer-focus:after:border-r-2 peer-focus:after:border-t-2 peer-focus:after:border-pink-500 
             peer-disabled:text-transparent peer-disabled:before:border-transparent peer-disabled:after:border-transparent`}
