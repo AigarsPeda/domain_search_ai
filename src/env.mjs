@@ -26,6 +26,7 @@ export const env = createEnv({
     GOOGLE_CLIENT_ID: z.string().min(1),
     GODADDY_API_SECRET: z.string().min(1),
     GOOGLE_CLIENT_SECRET: z.string().min(1),
+    OPENAI_API_KEY: z.string().min(1),
   },
 
   /**
@@ -54,5 +55,7 @@ export const env = createEnv({
     GODADDY_API: process.env.GODADDY_API,
     GODADDY_API_KEY: process.env.GODADDY_API_KEY,
     GODADDY_API_SECRET: process.env.GODADDY_API_SECRET,
+
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY,
   },
 });

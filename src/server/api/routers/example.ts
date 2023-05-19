@@ -5,6 +5,13 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
+import { Configuration, OpenAIApi } from "openai";
+
+const configuration = new Configuration({
+  apiKey: env.OPENAI_API_KEY,
+});
+
+const openai = new OpenAIApi(configuration);
 
 export const exampleRouter = createTRPCRouter({
   hello: publicProcedure
@@ -24,23 +31,45 @@ export const exampleRouter = createTRPCRouter({
   }),
 
   getDomain: publicProcedure.query(async ({ ctx }) => {
-    const res = await fetch(`${env.GODADDY_API}/v1/domains/available`, {
-      method: "POST",
-      body: JSON.stringify(["wupzy.com"]),
-      headers: {
-        Authorization: `sso-key ${env.GODADDY_API_KEY}:${env.GODADDY_API_SECRET}`,
-        "Content-Type": "application/json",
-      },
-    });
+    // try {
+    //   const completion = await openai.createCompletion({
+    //     model: "text-davinci-003",
+    //     prompt: "Hello world",
+    //   });
+    //   console.log(completion.data.choices[0]?.text);
+    // } catch (error) {
+    //   if (error?.response) {
+    //     console.log(error.response.status);
+    //     console.log(error.response.data);
+    //   } else {
+    //     console.log(error?.message);
+    //   }
+    // }
+    // const completion = await openai.createCompletion({
+    //   model: "text-davinci-003",
+    //   prompt: "Hello world",
+    // });
+
+    // console.log("openai --->", completion.data);
+    // console.log(completion.data.choices[0].text);
+
+    // const res = await fetch(`${env.GODADDY_API}/v1/domains/available`, {
+    //   method: "POST",
+    //   body: JSON.stringify(["wupzy.com"]),
+    //   headers: {
+    //     Authorization: `sso-key ${env.GODADDY_API_KEY}:${env.GODADDY_API_SECRET}`,
+    //     "Content-Type": "application/json",
+    //   },
+    // });
 
     // TODO: Fetch info from GoDaddy API
     // TODO: Save info to DB
     // TODO: Return info to client
 
-    const data: unknown = await res.json();
+    // const data: unknown = await res.json();
 
-    console.log(data);
+    // console.log(data);
 
-    return data;
+    return { data: "hello" };
   }),
 });
