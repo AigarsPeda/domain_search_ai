@@ -53,22 +53,22 @@ export const exampleRouter = createTRPCRouter({
     // console.log("openai --->", completion.data);
     // console.log(completion.data.choices[0].text);
 
-    // const res = await fetch(`${env.GODADDY_API}/v1/domains/available`, {
-    //   method: "POST",
-    //   body: JSON.stringify(["wupzy.com"]),
-    //   headers: {
-    //     Authorization: `sso-key ${env.GODADDY_API_KEY}:${env.GODADDY_API_SECRET}`,
-    //     "Content-Type": "application/json",
-    //   },
-    // });
+    const res = await fetch(`${env.GODADDY_API}/v1/domains/available`, {
+      method: "POST",
+      body: JSON.stringify(["wupzy.com"]),
+      headers: {
+        Authorization: `sso-key ${env.GODADDY_API_KEY}:${env.GODADDY_API_SECRET}`,
+        "Content-Type": "application/json",
+      },
+    });
 
     // TODO: Fetch info from GoDaddy API
     // TODO: Save info to DB
     // TODO: Return info to client
 
-    // const data: unknown = await res.json();
+    const data: unknown = await res.json();
 
-    // console.log(data);
+    console.log(data);
 
     return { data: "hello" };
   }),
