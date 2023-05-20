@@ -7,6 +7,17 @@ import {
 } from "~/server/api/trpc";
 import { Configuration, OpenAIApi } from "openai";
 
+type OpenaiError = {
+  code: number;
+  message: string;
+  requestId: string;
+  details: unknown;
+  response: {
+    status: number;
+    data: unknown;
+  };
+};
+
 const AI_ADDITIONAL_INPUT =
   "Give me 10 domain names that matches my description that i provided and nothing else.";
 
@@ -94,12 +105,15 @@ export const exampleRouter = createTRPCRouter({
 
         return { answer: completion.data.choices[0]?.text };
       } catch (error) {
-        if (error?.response) {
-          console.log(error.response.status);
-          console.log(error.response.data);
+        const err = error as OpenaiError;
+        if (err?.response) {
+          console.log(err.response.status);
+          console.log(err.response.data);
         } else {
-          console.log(error?.message);
+          console.log(err?.message);
         }
+
+        return { answer: "Sorry, I don't know the answer to that." };
 
         // return { answer: completion.data.choices[0].text };
       }
