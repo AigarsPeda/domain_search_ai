@@ -2,9 +2,11 @@ import { type NextPage } from "next";
 import { useState } from "react";
 import PageHead from "~/components/elements/PageHead";
 import Textarea from "~/components/elements/Textarea";
+import { api } from "~/utils/api";
 
 const Generate: NextPage = () => {
   const [textAreaValue, setTextAreaValue] = useState("");
+  const { mutate, data } = api.example.askQuestion.useMutation();
 
   return (
     <>
@@ -22,6 +24,26 @@ const Generate: NextPage = () => {
           handleInputChange={setTextAreaValue}
           placeholder="Describe your business or project..."
         />
+        <button
+          className="rounded-md border-2 border-pink-500 px-10 py-3 font-semibold text-white no-underline transition hover:bg-pink-500"
+          onClick={() =>
+            mutate({
+              question: textAreaValue,
+            })
+          }
+        >
+          Generate
+        </button>
+
+        {data && (
+          <div className="mt-10">
+            <h1 className="text-xl font-extrabold tracking-tight text-gray-50 sm:text-[2rem] md:text-6xl">
+              {data.answer}
+            </h1>
+
+            <p className="mb-10 mt-6 text-gray-50">{data.answer}</p>
+          </div>
+        )}
       </div>
     </>
   );

@@ -7,6 +7,9 @@ import {
 } from "~/server/api/trpc";
 import { Configuration, OpenAIApi } from "openai";
 
+const AI_ADDITIONAL_INPUT =
+  "Give me 10 domain names that matches my description that i provided and nothing else.";
+
 const configuration = new Configuration({
   apiKey: env.OPENAI_API_KEY,
 });
@@ -70,6 +73,37 @@ export const exampleRouter = createTRPCRouter({
 
     console.log(data);
 
-    return { data: "hello" };
+    return { data };
   }),
+
+  askQuestion: publicProcedure
+    .input(z.object({ question: z.string() }))
+    .mutation(async ({ input }) => {
+      try {
+        const completion = await openai.createCompletion({
+          n: 1,
+          top_p: 1,
+          max_tokens: 500,
+          presence_penalty: 0,
+          frequency_penalty: 0,
+          model: "text-davinci-003",
+          prompt: `Q: ${input.question} - ${AI_ADDITIONAL_INPUT}\nA:`,
+        });
+
+        console.log("completion.data.choices --->", completion.data.choices);
+
+        return { answer: completion.data.choices[0]?.text };
+      } catch (error) {
+        if (error?.response) {
+          console.log(error.response.status);
+          console.log(error.response.data);
+        } else {
+          console.log(error?.message);
+        }
+
+        // return { answer: completion.data.choices[0].text };
+      }
+    }),
+
+  // console.log("openai --->", completion.data);
 });
