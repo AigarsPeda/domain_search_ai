@@ -19,7 +19,7 @@ type OpenaiError = {
 };
 
 const AI_ADDITIONAL_INPUT =
-  "Give me 10 domain names that matches my description that i provided and nothing else.";
+  "Give me 10 domain names that matches my description that i provided and nothing else in language that description is written in.";
 
 const configuration = new Configuration({
   apiKey: env.OPENAI_API_KEY,
