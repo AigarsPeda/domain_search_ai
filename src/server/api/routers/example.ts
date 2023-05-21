@@ -18,8 +18,10 @@ type OpenaiError = {
   };
 };
 
+// "Give me 10 domain names that would be good for company that i described. In language that description is written in. "
+
 const AI_ADDITIONAL_INPUT =
-  "Give me 10 domain names that matches my description that i provided and nothing else in language that description is written in.";
+  "Give me 10 domain names without long marks and softening marks that would be good for company that i described. In language that description is written in.";
 
 const configuration = new Configuration({
   apiKey: env.OPENAI_API_KEY,
@@ -103,6 +105,23 @@ export const exampleRouter = createTRPCRouter({
 
         console.log("completion.data.choices --->", completion.data.choices);
 
+        const domainNames = getDomainNames(completion.data.choices[0]?.text);
+
+        const res = await fetch(`${env.GODADDY_API}/v1/domains/available`, {
+          method: "POST",
+          // body: JSON.stringify(["kakisuni.com"]),
+          body: JSON.stringify(domainNames),
+          headers: {
+            Authorization: `sso-key ${env.GODADDY_API_KEY}:${env.GODADDY_API_SECRET}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        const data: unknown = await res.json();
+        console.log("data -->", data);
+
+        // console.log("---->", getDomainNames(completion.data.choices[0]?.text));
+
         return { answer: completion.data.choices[0]?.text };
       } catch (error) {
         const err = error as OpenaiError;
@@ -121,3 +140,32 @@ export const exampleRouter = createTRPCRouter({
 
   // console.log("openai --->", completion.data);
 });
+
+// text: '\n' +
+// '1. SuņiKaķiTārpi.lv\n' +
+// '2. AnimalLove.lv\n' +
+// '3. FourLegs.lv\n' +
+// '4. SnakesCatsDogs.lv\n' +
+// '5. Playmates.lv\n' +
+// '6. AnimalFamily.lv\n' +
+// '7. CreatureNation.lv\n' +
+// '8. CritterCentral.lv\n' +
+// '9. WoollyNeeds.lv\n' +
+// '10. PetsAreUs.lv',
+
+const getDomainNames = (str: string | undefined): string[] => {
+  if (!str) {
+    return [];
+  }
+
+  const arr = str.split("\n");
+
+  // remove 1. 2. 3. etc
+  const newArr = arr
+    .map((item) => {
+      return item.replace(/\d+\./, "").trim();
+    })
+    .filter((item) => item.includes(" "));
+
+  return newArr;
+};
