@@ -21,7 +21,7 @@ type OpenaiError = {
 // "Give me 10 domain names that would be good for company that i described. In language that description is written in. "
 
 const AI_ADDITIONAL_INPUT =
-  "Give me 10 domain names without long marks and softening marks that would be good for company that i described. In language that description is written in.";
+  "Please provide me with 10 domain name suggestions that are suitable for the company described in the provided description, written in the same language as the description.";
 
 const configuration = new Configuration({
   apiKey: env.OPENAI_API_KEY,
@@ -107,15 +107,21 @@ export const exampleRouter = createTRPCRouter({
 
         const domainNames = getDomainNames(completion.data.choices[0]?.text);
 
-        const res = await fetch(`${env.GODADDY_API}/v1/domains/available`, {
-          method: "POST",
-          // body: JSON.stringify(["kakisuni.com"]),
-          body: JSON.stringify(domainNames),
-          headers: {
-            Authorization: `sso-key ${env.GODADDY_API_KEY}:${env.GODADDY_API_SECRET}`,
-            "Content-Type": "application/json",
-          },
-        });
+        // const res = await fetch(`${env.GODADDY_API}/v1/domains/available`, {
+        //   method: "POST",
+        //   // body: JSON.stringify(["kakisuni.com"]),
+        //   body: JSON.stringify(domainNames),
+        //   headers: {
+        //     Authorization: `sso-key ${env.GODADDY_API_KEY}:${env.GODADDY_API_SECRET}`,
+        //     "Content-Type": "application/json",
+        //   },
+        // });
+
+        const res = await fetch(
+          "https://domain-availability.whoisxmlapi.com/api/v1?apiKey=at_5eEUW7cAPFdCOC80hAUbeljpXocZG&domainName=google.com&credits=DA"
+        );
+
+        // https://domain-availability.whoisxmlapi.com/api/v1?apiKey=at_5eEUW7cAPFdCOC80hAUbeljpXocZG&domainName=google.com&credits=DA
 
         const data: unknown = await res.json();
         console.log("data -->", data);
@@ -160,12 +166,14 @@ const getDomainNames = (str: string | undefined): string[] => {
 
   const arr = str.split("\n");
 
-  // remove 1. 2. 3. etc
-  const newArr = arr
-    .map((item) => {
-      return item.replace(/\d+\./, "").trim();
-    })
-    .filter((item) => item.includes(" "));
+  const modifiedList = arr.map((item) => item.replace(/^\d+\.\s/, ""));
 
-  return newArr;
+  // remove 1. 2. 3. etc
+  // const newArr = arr
+  //   .map((item) => {
+  //     return item.replace(/\d+\./, "").trim();
+  //   })
+  //   .filter((item) => item.includes(" "));
+
+  return modifiedList;
 };
