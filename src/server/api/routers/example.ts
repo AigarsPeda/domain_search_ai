@@ -6,6 +6,7 @@ import {
   publicProcedure,
 } from "~/server/api/trpc";
 import { Configuration, OpenAIApi } from "openai";
+import whoiser from "whoiser";
 
 type OpenaiError = {
   code: number;
@@ -21,7 +22,7 @@ type OpenaiError = {
 // "Give me 10 domain names that would be good for company that i described. In language that description is written in. "
 
 const AI_ADDITIONAL_INPUT =
-  "Please provide me with 10 domain name suggestions that are suitable for the company described in the provided description, written in the same language as the description.";
+  "Please provide me with 10 domain name suggestions that are suitable for the company described in the provided description, written in the same language as the description. Please ensure the suggestions do not contain diacritical or special characters, and any letters with such marks should be replaced with the same letters without the marks.";
 
 const configuration = new Configuration({
   apiKey: env.OPENAI_API_KEY,
@@ -117,14 +118,20 @@ export const exampleRouter = createTRPCRouter({
         //   },
         // });
 
-        const res = await fetch(
-          "https://domain-availability.whoisxmlapi.com/api/v1?apiKey=at_5eEUW7cAPFdCOC80hAUbeljpXocZG&domainName=google.com&credits=DA"
-        );
+        // const res = await fetch(
+        //   "https://domain-availability.whoisxmlapi.com/api/v1?apiKey=at_5eEUW7cAPFdCOC80hAUbeljpXocZG&domainName=google.com&credits=DA"
+        // );
 
         // https://domain-availability.whoisxmlapi.com/api/v1?apiKey=at_5eEUW7cAPFdCOC80hAUbeljpXocZG&domainName=google.com&credits=DA
 
-        const data: unknown = await res.json();
-        console.log("data -->", data);
+        // const data: unknown = await res.json();
+
+        const domainInfo = (await whoiser("Sunskacumaja.lv")) as DomainInfo;
+
+        console.log("checkIfDomainIsFree -->", checkIfDomainIsFree(domainInfo));
+        console.log("domainInfo -->", domainInfo);
+
+        // 'Domain Status': [ 'free' ],
 
         // console.log("---->", getDomainNames(completion.data.choices[0]?.text));
 
@@ -147,18 +154,6 @@ export const exampleRouter = createTRPCRouter({
   // console.log("openai --->", completion.data);
 });
 
-// text: '\n' +
-// '1. SuņiKaķiTārpi.lv\n' +
-// '2. AnimalLove.lv\n' +
-// '3. FourLegs.lv\n' +
-// '4. SnakesCatsDogs.lv\n' +
-// '5. Playmates.lv\n' +
-// '6. AnimalFamily.lv\n' +
-// '7. CreatureNation.lv\n' +
-// '8. CritterCentral.lv\n' +
-// '9. WoollyNeeds.lv\n' +
-// '10. PetsAreUs.lv',
-
 const getDomainNames = (str: string | undefined): string[] => {
   if (!str) {
     return [];
@@ -168,12 +163,44 @@ const getDomainNames = (str: string | undefined): string[] => {
 
   const modifiedList = arr.map((item) => item.replace(/^\d+\.\s/, ""));
 
-  // remove 1. 2. 3. etc
-  // const newArr = arr
-  //   .map((item) => {
-  //     return item.replace(/\d+\./, "").trim();
-  //   })
-  //   .filter((item) => item.includes(" "));
-
   return modifiedList;
+};
+
+interface DomainInfo {
+  [key: string]: unknown;
+  "Domain Status": string[];
+}
+
+// loop through all objects keys in could nested objects and check if they if 'Domain Status': [ 'free' ],
+const checkIfDomainIsFree = (obj: DomainInfo): boolean => {
+  if (typeof obj === "string" || Array.isArray(obj)) {
+    return false;
+  }
+
+  if (typeof obj === "object") {
+    const keys = Object.keys(obj);
+
+    for (const key of keys) {
+      if (key === "Domain Status") {
+        const value = obj[key];
+
+        if (
+          (Array.isArray(value) && value.includes("free")) ||
+          value.length === 0
+        ) {
+          return true;
+        }
+      }
+
+      const value = obj[key] as DomainInfo;
+
+      if (value && typeof value === "object") {
+        if (checkIfDomainIsFree(value)) {
+          return true;
+        }
+      }
+    }
+  }
+
+  return false;
 };
