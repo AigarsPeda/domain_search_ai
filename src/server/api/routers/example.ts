@@ -1,3 +1,5 @@
+import { Configuration, OpenAIApi } from "openai";
+import whoiser from "whoiser";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 import {
@@ -5,8 +7,6 @@ import {
   protectedProcedure,
   publicProcedure,
 } from "~/server/api/trpc";
-import { Configuration, OpenAIApi } from "openai";
-import whoiser from "whoiser";
 
 type OpenaiError = {
   code: number;
@@ -22,7 +22,7 @@ type OpenaiError = {
 // "Give me 10 domain names that would be good for company that i described. In language that description is written in. "
 
 const AI_ADDITIONAL_INPUT =
-  "Please provide me with 10 domain name suggestions that are suitable for the company described in the provided description, written in the same language as the description. Please ensure the suggestions do not contain diacritical or special characters, and any letters with such marks should be replaced with the same letters without the marks.";
+  "Please provide me with 10 domain name suggestions that are suitable for the company described in the provided description and nothing else, written in the same language as the description. Please ensure the suggestions do not contain diacritical or special characters, and any letters with such marks should be replaced with the same letters without the marks. Please ensure the suggestions do not contain any number and are separated by a new line.";
 
 const configuration = new Configuration({
   apiKey: env.OPENAI_API_KEY,
@@ -108,34 +108,18 @@ export const exampleRouter = createTRPCRouter({
 
         const domainNames = getDomainNames(completion.data.choices[0]?.text);
 
-        // const res = await fetch(`${env.GODADDY_API}/v1/domains/available`, {
-        //   method: "POST",
-        //   // body: JSON.stringify(["kakisuni.com"]),
-        //   body: JSON.stringify(domainNames),
-        //   headers: {
-        //     Authorization: `sso-key ${env.GODADDY_API_KEY}:${env.GODADDY_API_SECRET}`,
-        //     "Content-Type": "application/json",
-        //   },
-        // });
+        const freeDomains: string[] = [];
 
-        // const res = await fetch(
-        //   "https://domain-availability.whoisxmlapi.com/api/v1?apiKey=at_5eEUW7cAPFdCOC80hAUbeljpXocZG&domainName=google.com&credits=DA"
-        // );
+        for (const domainName of domainNames) {
+          const domainInfo = (await whoiser(domainName)) as DomainInfo;
 
-        // https://domain-availability.whoisxmlapi.com/api/v1?apiKey=at_5eEUW7cAPFdCOC80hAUbeljpXocZG&domainName=google.com&credits=DA
+          if (checkIfDomainIsFree(domainInfo)) {
+            freeDomains.push(domainName);
+            console.log("domainName --->", domainName);
+          }
+        }
 
-        // const data: unknown = await res.json();
-
-        const domainInfo = (await whoiser("Sunskacumaja.lv")) as DomainInfo;
-
-        console.log("checkIfDomainIsFree -->", checkIfDomainIsFree(domainInfo));
-        console.log("domainInfo -->", domainInfo);
-
-        // 'Domain Status': [ 'free' ],
-
-        // console.log("---->", getDomainNames(completion.data.choices[0]?.text));
-
-        return { answer: completion.data.choices[0]?.text };
+        return { answer: freeDomains };
       } catch (error) {
         const err = error as OpenaiError;
         if (err?.response) {
@@ -146,12 +130,8 @@ export const exampleRouter = createTRPCRouter({
         }
 
         return { answer: "Sorry, I don't know the answer to that." };
-
-        // return { answer: completion.data.choices[0].text };
       }
     }),
-
-  // console.log("openai --->", completion.data);
 });
 
 const getDomainNames = (str: string | undefined): string[] => {
@@ -161,9 +141,10 @@ const getDomainNames = (str: string | undefined): string[] => {
 
   const arr = str.split("\n");
 
-  const modifiedList = arr.map((item) => item.replace(/^\d+\.\s/, ""));
+  // remove empty strings
+  const filteredArr = arr.filter((item) => item.trim() !== "");
 
-  return modifiedList;
+  return filteredArr;
 };
 
 interface DomainInfo {
