@@ -28,14 +28,14 @@ const Home: NextPage = () => {
       <div className="flex min-h-screen flex-col items-center justify-center">
         <div className="max-w-4xl">
           <h1 className="text-xl font-extrabold tracking-tight text-gray-50 sm:text-[2rem] md:text-6xl">
-            Unlock <span className="text-pink-500">AI</span>-Powered Domain
+            Unlock <span className="text-pink-500">AI</span> Powered Domain
             Recommendations!
           </h1>
 
-          <p className="mb-10 mt-6 text-gray-50">
-            Describe your business or project and let our advanced AI technology
-            generate personalized domain name suggestions exclusively for you.
-            Take your online presence to the next level!
+          <p className="mb-10 mt-6 max-w-2xl text-xl tracking-wider text-gray-50">
+            Describe your business or project and let our AI generate
+            personalized domain name suggestions just for you. Showing only
+            available domains. Saving you time and money.
           </p>
 
           <div>

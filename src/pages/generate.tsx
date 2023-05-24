@@ -37,11 +37,17 @@ const Generate: NextPage = () => {
 
         {data && (
           <div className="mt-10">
-            <h1 className="text-xl font-extrabold tracking-tight text-gray-50 sm:text-[2rem] md:text-6xl">
+            {/* <h1 className="text-xl font-extrabold tracking-tight text-gray-50 sm:text-[2rem] md:text-6xl">
               {data.answer}
-            </h1>
+            </h1> */}
 
-            <p className="mb-10 mt-6 text-gray-50">{data.answer}</p>
+            {data.answer.map((item) => (
+              <div className="flex flex-col items-center gap-2" key={item}>
+                <p className="text-2xl text-white">{item}</p>
+              </div>
+            ))}
+
+            {/* <p className="mb-10 mt-6 text-gray-50">{data.answer}</p> */}
           </div>
         )}
       </div>

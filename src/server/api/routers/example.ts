@@ -1,5 +1,5 @@
 import { Configuration, OpenAIApi } from "openai";
-import whoiser from "whoiser";
+import whoiser, { type WhoisSearchResult } from "whoiser";
 import { z } from "zod";
 import { env } from "~/env.mjs";
 import {
@@ -19,10 +19,15 @@ type OpenaiError = {
   };
 };
 
-// "Give me 10 domain names that would be good for company that i described. In language that description is written in. "
+// domainbrain.net
+// domainsmart.net
+// seekai.com
+// nameintel.com
+// seekai.com
 
-const AI_ADDITIONAL_INPUT =
-  "Please provide me with 10 domain name suggestions that are suitable for the company described in the provided description and nothing else, written in the same language as the description. Please ensure the suggestions do not contain diacritical or special characters, and any letters with such marks should be replaced with the same letters without the marks. Please ensure the suggestions do not contain any number and are separated by a new line.";
+const INTRO = "Provide me with 10 domain name suggestions for: ";
+const RULES =
+  "Only domains with extension ,no explanation. Language description language. No number. Separated by a new line. No diacritical or special characters, and any letters with such marks should be replaced with the same letters without the marks";
 
 const configuration = new Configuration({
   apiKey: env.OPENAI_API_KEY,
@@ -101,21 +106,22 @@ export const exampleRouter = createTRPCRouter({
           presence_penalty: 0,
           frequency_penalty: 0,
           model: "text-davinci-003",
-          prompt: `Q: ${input.question} - ${AI_ADDITIONAL_INPUT}\nA:`,
+          prompt: `${INTRO} - ${input.question} - ${RULES}`,
         });
 
-        console.log("completion.data.choices --->", completion.data.choices);
+        console.log("completion.data", completion.data);
 
         const domainNames = getDomainNames(completion.data.choices[0]?.text);
+
+        console.log("domainNames ????", domainNames);
 
         const freeDomains: string[] = [];
 
         for (const domainName of domainNames) {
-          const domainInfo = (await whoiser(domainName)) as DomainInfo;
+          const domainInfo = await whoiser(domainName);
 
           if (checkIfDomainIsFree(domainInfo)) {
             freeDomains.push(domainName);
-            console.log("domainName --->", domainName);
           }
         }
 
@@ -129,31 +135,40 @@ export const exampleRouter = createTRPCRouter({
           console.log(err?.message);
         }
 
-        return { answer: "Sorry, I don't know the answer to that." };
+        return { answer: ["Sorry, I don't know the answer to that."] };
       }
     }),
 });
+
+// remove everything before first :'
+const removeEverythingBeforeFirstColon = (str: string): string => {
+  const index = str.indexOf(":");
+  return str.slice(index + 1);
+};
 
 const getDomainNames = (str: string | undefined): string[] => {
   if (!str) {
     return [];
   }
 
-  const arr = str.split("\n");
+  const arr = removeEverythingBeforeFirstColon(str).split("\n");
+
+  // remove empty strings or strings that are just one character long
+  const filteredArr = arr.filter((item) => item !== "" && item.length > 1);
 
   // remove empty strings
-  const filteredArr = arr.filter((item) => item.trim() !== "");
+  // const filteredArr = arr.filter((item) => item !== "");
+
+  // remove all empty places
+  filteredArr.forEach((item, index) => {
+    filteredArr[index] = item.trim();
+  });
 
   return filteredArr;
 };
 
-interface DomainInfo {
-  [key: string]: unknown;
-  "Domain Status": string[];
-}
-
 // loop through all objects keys in could nested objects and check if they if 'Domain Status': [ 'free' ],
-const checkIfDomainIsFree = (obj: DomainInfo): boolean => {
+const checkIfDomainIsFree = (obj: WhoisSearchResult): boolean => {
   if (typeof obj === "string" || Array.isArray(obj)) {
     return false;
   }
@@ -167,13 +182,13 @@ const checkIfDomainIsFree = (obj: DomainInfo): boolean => {
 
         if (
           (Array.isArray(value) && value.includes("free")) ||
-          value.length === 0
+          (value && value.length === 0)
         ) {
           return true;
         }
       }
 
-      const value = obj[key] as DomainInfo;
+      const value = obj[key] as WhoisSearchResult;
 
       if (value && typeof value === "object") {
         if (checkIfDomainIsFree(value)) {
