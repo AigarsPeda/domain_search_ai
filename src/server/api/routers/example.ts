@@ -25,9 +25,9 @@ type OpenaiError = {
 // nameintel.com
 // seekai.com
 
-const INTRO = "Provide me with 10 domain name suggestions for: ";
+const INTRO = "Provide 10 domain with top level domain name suggestions for: ";
 const RULES =
-  "Only domains with extension ,no explanation. Language description language. No number. Separated by a new line. No diacritical or special characters, and any letters with such marks should be replaced with the same letters without the marks";
+  ". No explanation. Language description language. No number. Separated by a new line. No diacritical or special characters, and any letters with such marks should be replaced with the same letters without the marks";
 
 const configuration = new Configuration({
   apiKey: env.OPENAI_API_KEY,
@@ -125,6 +125,18 @@ export const exampleRouter = createTRPCRouter({
           }
         }
 
+        // const res = await fetch(`${env.GODADDY_API}/v1/domains/available`, {
+        //   method: "POST",
+        //   body: JSON.stringify(domainNames),
+        //   headers: {
+        //     Authorization: `sso-key ${env.GODADDY_API_KEY}:${env.GODADDY_API_SECRET}`,
+        //     "Content-Type": "application/json",
+        //   },
+        // });
+
+        // const data: unknown = await res.json();
+        // console.log("data --->", data);
+
         return { answer: freeDomains };
       } catch (error) {
         const err = error as OpenaiError;
@@ -154,14 +166,11 @@ const getDomainNames = (str: string | undefined): string[] => {
   const arr = removeEverythingBeforeFirstColon(str).split("\n");
 
   // remove empty strings or strings that are just one character long
-  const filteredArr = arr.filter((item) => item !== "" && item.length > 1);
-
-  // remove empty strings
-  // const filteredArr = arr.filter((item) => item !== "");
-
-  // remove all empty places
-  filteredArr.forEach((item, index) => {
-    filteredArr[index] = item.trim();
+  const filteredArr = arr.filter((item) => {
+    const domainName = item.trim().replace(/\s/g, "");
+    if (domainName !== "" && domainName.length > 1) {
+      return domainName;
+    }
   });
 
   return filteredArr;
