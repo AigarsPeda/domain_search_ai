@@ -33,9 +33,9 @@ const Home: NextPage = () => {
           </h1>
 
           <p className="mb-10 mt-6 max-w-2xl text-xl tracking-wider text-gray-50">
-            Describe your business or project and let our AI generate
-            personalized domain name suggestions just for you. Showing only
-            available domains. Saving you time and money.
+            Share your business or project details, and our AI will create
+            unique domain name suggestions tailored exclusively to you. Discover
+            available domains, saving you valuable time and money.
           </p>
 
           <div>
